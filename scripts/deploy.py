@@ -1,5 +1,5 @@
-from scripts.helpful_scripts import get_account, get_contract
-from brownie import StakeToken, TokenFarm, network, config
+from scripts.helpful_scripts import get_account, get_contract, deploy_mocks
+from brownie import StakeToken, TokenFarm, MockWETH, network, config
 from web3 import Web3
 
 KEPT_BALANCE = Web3.toWei(100, "ether")

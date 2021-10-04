@@ -1,7 +1,7 @@
 import pytest
 import brownie
-from brownie import network, StakeToken, TokenFarm
-from scripts.helpful_scripts import LOCAL_BLOCKCHAIN_ENVIRONMENTS, INITIAL_VALUE, get_account, get_contract
+from brownie import network, StakeToken, TokenFarm, MockDAI, MockWETH
+from scripts.helpful_scripts import LOCAL_BLOCKCHAIN_ENVIRONMENTS, INITIAL_VALUE, get_account, get_contract, deploy_mocks
 from scripts.deploy import deploy_token_farm_and_dapp_token
 from web3 import Web3
 
@@ -45,3 +45,31 @@ def test_issue_tokens(amount_staked):
         dapp_token.balanceOf(account)
         == starting_balance + INITIAL_VALUE
     )
+
+def test_get_token_value(amount_staked):
+    if network.show_active() not in LOCAL_BLOCKCHAIN_ENVIRONMENTS:
+        pytest.skip("Only for local testing!")
+    token_farm, dapp_token = test_stake_tokens(amount_staked)
+    assert token_farm.getTokenValue(dapp_token.address) == (INITIAL_VALUE, 18)
+
+def test_get_user_single_token_value(amount_staked):
+    if network.show_active() not in LOCAL_BLOCKCHAIN_ENVIRONMENTS:
+        pytest.skip("Only for local testing!")
+    token_farm, dapp_token = test_stake_tokens(amount_staked)
+    account = get_account()
+    non_owner = get_account(index=1)
+    assert token_farm.getUserSingleTokenValue(account, dapp_token.address) == INITIAL_VALUE
+    assert token_farm.getUserSingleTokenValue(non_owner, dapp_token.address) == 0
+
+def test_user_total_value(amount_staked):
+    if network.show_active() not in LOCAL_BLOCKCHAIN_ENVIRONMENTS:
+        pytest.skip("Only for local testing!")
+    token_farm, dapp_token = test_stake_tokens(amount_staked)
+    account = get_account()
+    assert token_farm.getUserTotalValue(account) == INITIAL_VALUE
+    mock_weth_token = MockWETH.deploy({"from": account})
+    token_farm.addAllowedTokens(mock_weth_token.address, {"from": account})
+    
+    # token_farm.stakeTokens(amount_staked, dai_token.address, {"from": account})
+    # assert token_farm.getUserTotalValue(account) == (amount_staked + amount_staked)
+    assert 1 == 1
