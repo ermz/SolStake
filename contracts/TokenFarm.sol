@@ -41,7 +41,7 @@ contract TokenFarm is Ownable{
         uint256 totalValue = 0;
         require(uniqueTokensStaked[_user] > 0, "No tokens staked");
         for (uint256 allowedTokensIndex = 0; allowedTokensIndex < allowedTokens.length; allowedTokensIndex++) {
-            totalValue = totalValue = totalValue + getUserSingleTokenValue(_user, allowedTokens[allowedTokensIndex]);
+            totalValue = totalValue + getUserSingleTokenValue(_user, allowedTokens[allowedTokensIndex]);
         }
         return totalValue;
     }

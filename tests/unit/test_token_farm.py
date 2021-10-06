@@ -66,10 +66,13 @@ def test_user_total_value(amount_staked):
         pytest.skip("Only for local testing!")
     token_farm, dapp_token = test_stake_tokens(amount_staked)
     account = get_account()
+    non_owner = get_account(index=1)
     assert token_farm.getUserTotalValue(account) == INITIAL_VALUE
-    mock_weth_token = MockWETH.deploy({"from": account})
-    token_farm.addAllowedTokens(mock_weth_token.address, {"from": account})
-    
-    # token_farm.stakeTokens(amount_staked, dai_token.address, {"from": account})
-    # assert token_farm.getUserTotalValue(account) == (amount_staked + amount_staked)
-    assert 1 == 1
+    mock_weth_token = get_contract("weth_token")
+    assert mock_weth_token.balanceOf(account) == Web3.toWei(1000000, "ether")
+    mock_weth_token.approve(token_farm.address, amount_staked, {"from": account})
+    assert token_farm.uniqueTokensStaked(account) == 1
+    token_farm.stakeTokens(amount_staked, mock_weth_token.address, {"from": account})
+    assert token_farm.stakingBalance(mock_weth_token.address, account) == amount_staked
+    assert token_farm.uniqueTokensStaked(account) == 2
+    assert token_farm.getUserTotalValue(account) == INITIAL_VALUE + INITIAL_VALUE
